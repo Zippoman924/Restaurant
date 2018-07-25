@@ -1,0 +1,55 @@
+SELECT *
+FROM employee_t
+ORDER BY employeeid
+
+SELECT recipeid, name
+FROM meal_t
+WHERE cost >= 10
+
+SELECT employeeid, firstname
+FROM employee_t
+WHERE address LIKE '%Farland%'
+
+SELECT ingredientid, name
+FROM ingredient_t
+WHERE type IN ('Vegetable', 'Grain')
+ORDER BY name DESC
+
+select name, ingredientid,  price
+from ingredient_t
+where price < 5
+order by name
+
+
+select type, count(type) AS NumberOfMeals, sum(cost) as TotalCost
+from meal_t
+group by type
+having TotalCost < 20
+order by name
+
+select billid, count(recipeid) as NumberOfMeals, recipeid
+from mealandbill_t
+group by billid
+having recipeid != 'R001'
+order by billid
+
+select c.name, m.name, b.billid, m.cost
+from meal_t m, bill_t b, mealandbill_t mb, customer_t c
+where m.recipeid = mb.recipeid
+AND mb.billid = b.billid
+AND c.customerid = b.customerid
+order by c.name, b.billid desc
+
+select m.name, m.cost, sum(i.price*im.ingredientquantity) AS productioncost
+from meal_t m, ingredient_t i, ingredientinmeal_t im
+where m.recipeid = im.recipeid
+AND i.ingredientid = im.ingredientid
+group by m.name
+having 10*m.cost < productioncost
+
+SELECT m.name, o.date
+from order_t o, ingredient_t i, meal_t m, ingredientinmeal_t im
+where m.recipeid = im.recipeid AND im.ingredientid = i.ingredientid AND i.ingredientid = o.ingredientid
+group by m.name
+having o.date < '2017-2-09'
+order by o.date

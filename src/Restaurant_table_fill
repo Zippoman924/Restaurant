@@ -1,0 +1,327 @@
+DROP TABLE IF EXISTS mealandbill_t;
+DROP TABLE IF EXISTS order_t;
+DROP TABLE IF EXISTS ingredientinmeal_t;
+DROP TABLE IF EXISTS recipebook_t;
+DROP TABLE IF EXISTS supplier_t;
+DROP TABLE IF EXISTS ingredient_t;
+DROP TABLE IF EXISTS meal_t;
+DROP TABLE IF EXISTS bill_t;
+DROP TABLE IF EXISTS customer_t;
+DROP TABLE IF EXISTS table_t;
+DROP TABLE IF EXISTS server_t;
+DROP TABLE IF EXISTS chef_t;
+DROP TABLE IF EXISTS employee_t;
+
+
+
+CREATE TABLE employee_t
+(
+    employeeid    CHAR(4) NOT NULL,
+    firstname    VARCHAR(30),
+    datejoined    DATE,
+    phoneno        VARCHAR(10),
+    address        VARCHAR(15),
+    city        VARCHAR(15),
+    state        VARCHAR(15),
+    zip        CHAR(5),
+    CONSTRAINT EMPLOYEE_PK PRIMARY KEY (employeeid)
+);
+
+CREATE TABLE chef_t
+(
+    employeeid    CHAR(4) NOT NULL,
+    type        VARCHAR(10),
+    CONSTRAINT CHEF_PK PRIMARY KEY (employeeid),
+    CONSTRAINT CHEF_FK FOREIGN KEY (employeeid) REFERENCES employee_t(employeeid)
+);
+
+CREATE TABLE server_t
+(
+    employeeid    CHAR(4) NOT NULL,
+    CONSTRAINT SERVER_PK PRIMARY KEY (employeeid),
+    CONSTRAINT SERVER_FK FOREIGN KEY (employeeid) REFERENCES employee_t(employeeid)
+);
+
+CREATE TABLE table_t
+(
+    tablenum    INT NOT NULL,
+    numofseats    INT,
+    typeofseats    VARCHAR(10),
+    server        CHAR(4),
+    CONSTRAINT TABLE_PK PRIMARY KEY (tablenum),
+    CONSTRAINT TABLE_FK FOREIGN KEY (server) REFERENCES server_t(employeeid)
+);
+
+CREATE TABLE customer_t
+(
+    customerid    INT NOT NULL,
+    name        VARCHAR(30),
+    creditcardnum    CHAR(16),
+    phonenum    CHAR(10),
+    preferredtable    INT,
+    preferredserver    CHAR(4),
+    CONSTRAINT CUSTOMER_PK PRIMARY KEY (customerid),
+    CONSTRAINT CUSTOMER_FK1 FOREIGN KEY (preferredtable) REFERENCES table_t (tablenum),
+    CONSTRAINT CUSTOMER_FK2 FOREIGN KEY (preferredserver) REFERENCES server_t (employeeid)
+);
+
+CREATE TABLE bill_t
+(
+    billid        INT NOT NULL,
+    serverid    CHAR(4),
+    customerid    INT,
+    date        DATE,
+    CONSTRAINT BILL_PK PRIMARY KEY (billid),
+    CONSTRAINT BILL_FK1 FOREIGN KEY (serverid) REFERENCES server_t (employeeid),
+    CONSTRAINT BILL_FK2 FOREIGN KEY (customerid) REFERENCES customer_t (customerid)
+);
+
+CREATE TABLE meal_t
+(
+    recipeid    CHAR(5) NOT NULL,
+    type        VARCHAR(15),
+    name        VARCHAR(15),
+    cost        FLOAT,
+    CONSTRAINT MEAL_PK PRIMARY KEY (recipeid)
+);
+
+CREATE TABLE ingredient_t
+(
+    ingredientid    CHAR(5) NOT NULL,
+    name        VARCHAR(20),
+    type        VARCHAR(20),
+    unit        VARCHAR(20),
+    price        FLOAT,
+    CONSTRAINT INGREDIENT_PK PRIMARY KEY (ingredientid)
+);
+
+CREATE TABLE supplier_t
+(
+    supplierid    CHAR(5) NOT NULL,
+    name        VARCHAR(30),
+    phonenum    CHAR(10),
+    address    VARCHAR(25),
+    city        VARCHAR(20),
+    state        VARCHAR(2),
+    zip        CHAR(5),
+    CONSTRAINT SUPPLIER_PK PRIMARY KEY (supplierid)
+);
+
+CREATE TABLE recipebook_t
+(
+    recipeid    CHAR(5) NOT NULL,
+    employeeid    CHAR(4) NOT NULL,
+    CONSTRAINT RECIPEBOOK_PK PRIMARY KEY (recipeid, employeeid),
+    CONSTRAINT RECIPEBOOK_FK1 FOREIGN KEY (recipeid) REFERENCES meal_t (recipeid),
+    CONSTRAINT RECIPEBOOK_FK2 FOREIGN KEY (employeeid) REFERENCES chef_t (employeeid)
+);
+
+CREATE TABLE ingredientinmeal_t
+(
+    recipeid    CHAR(5) NOT NULL,
+    ingredientid    CHAR(5) NOT NULL,
+    ingredientquantity    INT,
+    CONSTRAINT INGREDIENTINMEAL_PK PRIMARY KEY (recipeid, ingredientid),
+    CONSTRAINT INGREDIENTINMEAL_FK1 FOREIGN KEY (recipeid) REFERENCES meal_t (recipeid),
+    CONSTRAINT INGREDIENTINMEAL_FK2 FOREIGN KEY (ingredientid) REFERENCES ingredient_t (ingredientid)
+);
+
+CREATE TABLE order_t
+(
+    supplierid    CHAR(5) NOT NULL,
+    ingredientid    CHAR(5) NOT NULL,
+    quantity    INT,
+    date        DATE,
+    CONSTRAINT ORDER_PK PRIMARY KEY (supplierid, ingredientid),
+    CONSTRAINT ORDER_FK1 FOREIGN KEY (supplierid) REFERENCES supplier_t (supplierid),
+    CONSTRAINT ORDER_FK2 FOREIGN KEY (ingredientid) REFERENCES ingredient_t (ingredientid)
+);
+
+CREATE TABLE mealandbill_t
+(
+    recipeid    CHAR(5) NOT NULL,
+    billid        INT NOT NULL,
+    CONSTRAINT MEALANDBILL_PK PRIMARY KEY (recipeid, billid),
+    CONSTRAINT MEALANDBILL_FK1 FOREIGN KEY (recipeid) REFERENCES meal_t (recipeid),
+    CONSTRAINT MEALANDBILL_FK2 FOREIGN KEY (billid) REFERENCES bill_t (billid)
+);
+
+
+INSERT INTO employee_t VALUES('E001', 'Casey', '2016-06-24', '(741) 507-5056', '3339 Coulter Lane', 'Boston', 'MA', '2115');
+INSERT INTO employee_t VALUES('E002', 'Wes', '2016-10-03', '(715) 437-9913', '3465 Benson Park Drive', 'Boston', 'MA', '2115');
+INSERT INTO employee_t VALUES('E003', 'Lily', '2016-10-15', '(236) 590-9854', '3845 Desert Broom Court', 'Boston', 'MA', '2115');
+INSERT INTO employee_t VALUES('E004', 'Brie', '2016-11-13', '(687) 319-8373', '657 Bungalow Road', 'Boston', 'MA', '2115');
+INSERT INTO employee_t VALUES('E005', 'Brogan', '2017-02-01', '(530) 899-2857', '3130 Clinton Street', 'Boston', 'MA', '2115');
+INSERT INTO employee_t VALUES('E006', 'Nevaeh', '2017-02-27', '(983) 761-2014', '4527 Farland Street', 'Boston', 'MA', '2115');
+INSERT INTO employee_t VALUES('E007', 'Grady', '2017-03-13', '(499) 298-7118', '1383 Modoc Alley', 'Boston', 'MA', '2115');
+INSERT INTO employee_t VALUES('E008', 'Roanne', '2017-07-01', '(203) 443-1060', '4803 Fairfax Drive', 'Boston', 'MA', '2115');
+INSERT INTO employee_t VALUES('E009', 'Janice', '2017-07-17', '(945) 687-6693', '1148 Richison Drive', 'Boston', 'MA', '2115');
+INSERT INTO employee_t VALUES('E010', 'Addilyn', '2017-08-08', '(971) 723-2215', '4318 Lynch Street', 'Boston', 'MA', '2115');
+
+INSERT INTO chef_t VALUES ('E002', 'Grill');
+INSERT INTO chef_t VALUES ('E005', 'Misc');
+INSERT INTO chef_t VALUES ('E010', 'Salad');
+
+INSERT INTO server_t VALUES ('E001');
+INSERT INTO server_t VALUES ('E003');
+INSERT INTO server_t VALUES ('E004');
+INSERT INTO server_t VALUES ('E006');
+INSERT INTO server_t VALUES ('E007');
+INSERT INTO server_t VALUES ('E008');
+INSERT INTO server_t VALUES ('E009');
+
+INSERT INTO table_t VALUES (1, 6, 'Booth', 'E001');
+INSERT INTO table_t VALUES (2, 6, 'Booth', 'E003');
+INSERT INTO table_t VALUES (3, 6, 'Booth', 'E004');
+INSERT INTO table_t VALUES (4, 10, 'Booth', 'E006');
+INSERT INTO table_t VALUES (5, 10, 'Booth', 'E007');
+INSERT INTO table_t VALUES (6, 2, 'Seats', 'E006');
+INSERT INTO table_t VALUES (7, 2, 'Seats', 'E009');
+INSERT INTO table_t VALUES (8, 2, 'Seats', 'E001');
+INSERT INTO table_t VALUES (9, 2, 'Seats', 'E008');
+INSERT INTO table_t VALUES (10, 4, 'Seats', 'E004');
+INSERT INTO table_t VALUES (11, 4, 'Seats', 'E007');
+INSERT INTO table_t VALUES (12, 4, 'Seats', 'E008');
+INSERT INTO table_t VALUES (13, 5, 'Seats', 'E009');
+INSERT INTO table_t VALUES (14, 5, 'Seats', 'E003');
+
+INSERT INTO customer_t VALUES (1, 'Godgifu Molloy', '9435782653237660', '6375392358', 11, 'E006');
+INSERT INTO customer_t VALUES (2, 'Odelia Boerefijn', '9825146125483588', '5825825171', 7, 'E009');
+INSERT INTO customer_t VALUES (3, 'Peer Yancy', '7518002709878435', '4744887605', 4, 'E001');
+INSERT INTO customer_t VALUES (4, 'Frangag Hochberg', '6089838366260877', '7848995693', 5, 'E008');
+INSERT INTO customer_t VALUES (5, 'Awinita Tipton', '9604752663274104', '6538079011', 1, 'E004');
+INSERT INTO customer_t VALUES (6, 'Berit Agnellini', '4112303304440842', '3596159585', 5, 'E007');
+INSERT INTO customer_t VALUES (7, 'Ashok Tirrell', '1699729096143335', '4198674296', 13, 'E008');
+INSERT INTO customer_t VALUES (8, 'Alf Ewart', '6292806849449487', '7935575665', 5, 'E009');
+INSERT INTO customer_t VALUES (9, 'Annabella Hunnisett', '5091971224440010', '9648163942', 7, 'E003');
+INSERT INTO customer_t VALUES (10, 'Ebba Bean', '9804172925910876', '2202890725', 5, 'E004');
+
+INSERT INTO bill_t VALUES (1, 'E006', 1, '2018-01-04');
+INSERT INTO bill_t VALUES (2, 'E009', 7, '2018-03-19');
+INSERT INTO bill_t VALUES (3, 'E001', 2, '2018-04-12');
+INSERT INTO bill_t VALUES (4, 'E008', 9, '2018-05-04');
+INSERT INTO bill_t VALUES (5, 'E004', 7, '2018-06-14');
+INSERT INTO bill_t VALUES (6, 'E007', 10, '2018-06-29');
+INSERT INTO bill_t VALUES (7, 'E008', 5, '2018-07-15');
+INSERT INTO bill_t VALUES (8, 'E009', 8, '2018-08-21');
+INSERT INTO bill_t VALUES (9, 'E003', 8, '2018-10-04');
+INSERT INTO bill_t VALUES (10, 'E004', 1, '2018-12-23');
+
+INSERT INTO meal_t VALUES ('R001', 'Standard', 'Chicken Parm', 10);
+INSERT INTO meal_t VALUES ('R002', 'Standard', 'Spaghetti Carbonara', 12);
+INSERT INTO meal_t VALUES ('R003', 'Standard', 'Burrito', 9);
+INSERT INTO meal_t VALUES ('R004', 'Standard', 'Stir Fry', 8);
+INSERT INTO meal_t VALUES ('R005', 'Pescatarian', 'Sushi', 13);
+INSERT INTO meal_t VALUES ('R006', 'Standard', 'Pizza', 7);
+INSERT INTO meal_t VALUES ('R007', 'Vegatarian', 'Toast', 2);
+INSERT INTO meal_t VALUES ('R008', 'Vegatarian', 'Salad', 4);
+
+INSERT INTO ingredient_t VALUES ('I001', 'Chicken', 'Meat', 'Pounds', 5);
+INSERT INTO ingredient_t VALUES ('I002', 'Tomato Sauce', 'Vegetable', 'Ounces', 3);
+INSERT INTO ingredient_t VALUES ('I003', 'Tomato', 'Vegetable', 'Bushels', 7);
+INSERT INTO ingredient_t VALUES ('I004', 'Cheese', 'Dairy', 'Pounds', 6);
+INSERT INTO ingredient_t VALUES ('I005', 'Egg', 'Protein', 'Cartons', 2);
+INSERT INTO ingredient_t VALUES ('I006', 'Bacon', 'Meat', 'Pounds', 7);
+INSERT INTO ingredient_t VALUES ('I007', 'Tortilla', 'Grain', 'Packages', 3);
+INSERT INTO ingredient_t VALUES ('I008', 'Rice', 'Grain', 'Pounds', 3);
+INSERT INTO ingredient_t VALUES ('I009', 'Lettuce', 'Vegetable', 'Heads', 1);
+INSERT INTO ingredient_t VALUES ('I010', 'Bell Pepper', 'Vegetable', 'Packages', 2);
+INSERT INTO ingredient_t VALUES ('I011', 'Onion', 'Vegetable', 'Bags', 1);
+INSERT INTO ingredient_t VALUES ('I012', 'Seaweed', 'Vegetable', 'Rolls', 6);
+INSERT INTO ingredient_t VALUES ('I013', 'Avocado', 'Vegetable', 'Pounds', 9);
+INSERT INTO ingredient_t VALUES ('I014', 'Fish', 'Meat', 'Pounds', 5);
+INSERT INTO ingredient_t VALUES ('I015', 'Milk', 'Dairy', 'Gallons', 2);
+INSERT INTO ingredient_t VALUES ('I016', 'Flour', 'Grain', 'Pounds', 3);
+INSERT INTO ingredient_t VALUES ('I017', 'Waterchesnuts', 'Vegetable', 'Ounces', 7);
+INSERT INTO ingredient_t VALUES ('I018', 'Spaghetti', 'Grain', 'Packages', 4);
+
+INSERT INTO supplier_t VALUES ('SU001', 'Stephensons Farm', '(678) 687-6452', '9521 Inverness Rd.', 'Prior Lake', 'MN', '55372');
+INSERT INTO supplier_t VALUES ('SU002', 'Corporate Foods R Us', '(975) 390-0117', '8506 E. San Carlos St.', 'Highland', 'IN', '46322');
+INSERT INTO supplier_t VALUES ('SU003', 'Stephanys Garden', '(804) 997-8763', '65 E. Glenridge St.', 'Wheeling', 'WV', '26003');
+INSERT INTO supplier_t VALUES ('SU004', 'Blue Ocean', '(949) 751-9576', '83 E. Maple Dr.', 'Emporia', 'KS', '66801');
+INSERT INTO supplier_t VALUES ('SU005', 'Half Groceries', '(239) 803-5439', '372 Constitution St.', 'Huntington', 'NY', '11743');
+
+INSERT INTO recipebook_t VALUES ('R001', 'E002');
+INSERT INTO recipebook_t VALUES ('R004', 'E002');
+INSERT INTO recipebook_t VALUES ('R006', 'E002');
+INSERT INTO recipebook_t VALUES ('R005', 'E010');
+INSERT INTO recipebook_t VALUES ('R007', 'E010');
+INSERT INTO recipebook_t VALUES ('R008', 'E010');
+INSERT INTO recipebook_t VALUES ('R002', 'E005');
+INSERT INTO recipebook_t VALUES ('R003', 'E005');
+
+INSERT INTO ingredientinmeal_t VALUES ('R001', 'I001', 4);
+INSERT INTO ingredientinmeal_t VALUES ('R001', 'I002', 2);
+INSERT INTO ingredientinmeal_t VALUES ('R001', 'I003', 6);
+INSERT INTO ingredientinmeal_t VALUES ('R001', 'I004', 7);
+INSERT INTO ingredientinmeal_t VALUES ('R002', 'I018', 8);
+INSERT INTO ingredientinmeal_t VALUES ('R002', 'I006', 2);
+INSERT INTO ingredientinmeal_t VALUES ('R002', 'I005', 7);
+INSERT INTO ingredientinmeal_t VALUES ('R002', 'I004', 9);
+INSERT INTO ingredientinmeal_t VALUES ('R003', 'I003', 8);
+INSERT INTO ingredientinmeal_t VALUES ('R003', 'I004', 3);
+INSERT INTO ingredientinmeal_t VALUES ('R003', 'I007', 1);
+INSERT INTO ingredientinmeal_t VALUES ('R003', 'I013', 4);
+INSERT INTO ingredientinmeal_t VALUES ('R003', 'I009', 8);
+INSERT INTO ingredientinmeal_t VALUES ('R003', 'I008', 6);
+INSERT INTO ingredientinmeal_t VALUES ('R004', 'I018', 2);
+INSERT INTO ingredientinmeal_t VALUES ('R004', 'I011', 7);
+INSERT INTO ingredientinmeal_t VALUES ('R004', 'I010', 1);
+INSERT INTO ingredientinmeal_t VALUES ('R004', 'I017', 2);
+INSERT INTO ingredientinmeal_t VALUES ('R005', 'I014', 5);
+INSERT INTO ingredientinmeal_t VALUES ('R005', 'I013', 2);
+INSERT INTO ingredientinmeal_t VALUES ('R005', 'I008', 1);
+INSERT INTO ingredientinmeal_t VALUES ('R005', 'I012', 4);
+INSERT INTO ingredientinmeal_t VALUES ('R006', 'I016', 4);
+INSERT INTO ingredientinmeal_t VALUES ('R006', 'I005', 8);
+INSERT INTO ingredientinmeal_t VALUES ('R006', 'I001', 3);
+INSERT INTO ingredientinmeal_t VALUES ('R006', 'I002', 8);
+INSERT INTO ingredientinmeal_t VALUES ('R006', 'I006', 2);
+INSERT INTO ingredientinmeal_t VALUES ('R006', 'I004', 8);
+INSERT INTO ingredientinmeal_t VALUES ('R007', 'I016', 5);
+INSERT INTO ingredientinmeal_t VALUES ('R007', 'I015', 5);
+INSERT INTO ingredientinmeal_t VALUES ('R007', 'I005', 3);
+INSERT INTO ingredientinmeal_t VALUES ('R008', 'I009', 1);
+INSERT INTO ingredientinmeal_t VALUES ('R008', 'I010', 2);
+INSERT INTO ingredientinmeal_t VALUES ('R008', 'I013', 3);
+INSERT INTO ingredientinmeal_t VALUES ('R008', 'I003', 5);
+
+INSERT INTO order_t VALUES ('SU001', 'I001', 4, '2016-10-25');
+INSERT INTO order_t VALUES ('SU003', 'I002', 1, '2017-02-09');
+INSERT INTO order_t VALUES ('SU003', 'I003', 5, '2016-03-30');
+INSERT INTO order_t VALUES ('SU001', 'I004', 7, '2016-02-19');
+INSERT INTO order_t VALUES ('SU001', 'I005', 9, '2017-02-08');
+INSERT INTO order_t VALUES ('SU001', 'I006', 3, '2017-02-13');
+INSERT INTO order_t VALUES ('SU002', 'I007', 6, '2016-08-15');
+INSERT INTO order_t VALUES ('SU005', 'I008', 9, '2017-03-28');
+INSERT INTO order_t VALUES ('SU003', 'I009', 2, '2016-02-12');
+INSERT INTO order_t VALUES ('SU003', 'I010', 4, '2017-05-02');
+INSERT INTO order_t VALUES ('SU003', 'I011', 6, '2017-07-04');
+INSERT INTO order_t VALUES ('SU004', 'I012', 8, '2016-10-05');
+INSERT INTO order_t VALUES ('SU003', 'I013', 3, '2017-05-30');
+INSERT INTO order_t VALUES ('SU004', 'I014', 7, '2017-04-03');
+INSERT INTO order_t VALUES ('SU001', 'I015', 8, '2016-03-28');
+INSERT INTO order_t VALUES ('SU005', 'I016', 6, '2017-03-22');
+INSERT INTO order_t VALUES ('SU004', 'I017', 6, '2016-07-29');
+INSERT INTO order_t VALUES ('SU002', 'I018', 5, '2017-01-19');
+
+INSERT INTO mealandbill_t VALUES ('R001', 1);
+INSERT INTO mealandbill_t VALUES ('R008', 1);
+INSERT INTO mealandbill_t VALUES ('R006', 2);
+INSERT INTO mealandbill_t VALUES ('R005', 3);
+INSERT INTO mealandbill_t VALUES ('R006', 3);
+INSERT INTO mealandbill_t VALUES ('R008', 4);
+INSERT INTO mealandbill_t VALUES ('R007', 5);
+INSERT INTO mealandbill_t VALUES ('R008', 5);
+INSERT INTO mealandbill_t VALUES ('R002', 6);
+INSERT INTO mealandbill_t VALUES ('R003', 6);
+INSERT INTO mealandbill_t VALUES ('R007', 6);
+INSERT INTO mealandbill_t VALUES ('R001', 7);
+INSERT INTO mealandbill_t VALUES ('R003', 7);
+INSERT INTO mealandbill_t VALUES ('R008', 8);
+INSERT INTO mealandbill_t VALUES ('R005', 9);
+INSERT INTO mealandbill_t VALUES ('R001', 9);
+INSERT INTO mealandbill_t VALUES ('R002', 9);
+INSERT INTO mealandbill_t VALUES ('R007', 10);
+INSERT INTO mealandbill_t VALUES ('R008', 10);
+
